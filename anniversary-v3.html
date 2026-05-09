@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Anniversary Love</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; user-select:none; }
+html { scroll-behavior:smooth; }
+
+:root {
+  --bg:       #130a0c;
+  --bg2:      #1e0f13;
+  --rose:     #c9727e;
+  --rose-lt:  #e8adb6;
+  --rose-dim: #7a3a44;
+  --gold:     #c49a55;
+  --gold-lt:  #e2c07a;
+  --cream:    #f2e0d5;
+  --text:     #ddc8be;
+  --muted:    #8a6a62;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── NO BLUE HIGHLIGHT ── */
+*, *::before, *::after { outline: none !important; }
+::selection { background: rgba(201,114,126,0.3); color: var(--cream); }
+
+/* ── CURSOR ── */
+#cur { position:fixed; width:10px; height:10px; background:var(--rose-lt); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); mix-blend-mode:screen; transition:transform 0.1s; }
+#cur-ring { position:fixed; width:36px; height:36px; border:1px solid rgba(201,114,126,0.45); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width 0.25s,height 0.25s,border-color 0.25s; }
+body:active #cur { transform:translate(-50%,-50%) scale(0.6); }
+
+/* ── PROGRESS ── */
+#prog { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--rose-dim),var(--rose),var(--gold)); z-index:9000; width:0; pointer-events:none; transition:width 0.08s linear; }
+
+/* ── BG CANVAS ── */
+#bgc, #trc { position:fixed; inset:0; pointer-events:none; }
+#bgc { z-index:0; }
+#trc { z-index:1; }
+
+/* ── GRAIN ── */
+.grain {
+  position:fixed; inset:0; z-index:2; pointer-events:none; opacity:0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='0.07'/%3E%3C/svg%3E");
+}
+
+/* ── PAGE ── */
+.page { position:relative; z-index:3; max-width:700px; margin:0 auto; padding:0 28px 140px; }
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center;
+  padding:80px 0 60px; position:relative;
+}
+
+.hero-badge {
+  display:inline-flex; align-items:center; gap:14px;
+  margin-bottom:40px; opacity:0; animation:riseIn 1s ease 0.5s forwards;
+}
+.bl { width:50px; height:1px; background:linear-gradient(to right,transparent,var(--gold)); }
+.bl.r { background:linear-gradient(to left,transparent,var(--gold)); }
+.bt { font-size:9px; letter-spacing:0.55em; text-transform:uppercase; color:var(--gold); font-weight:400; }
+
+/* Pulsing ring */
+.ring-wrap {
+  position:relative; width:148px; height:148px; margin:0 auto 36px;
+  opacity:0; animation:riseIn 1.2s ease 0.7s forwards;
+}
+.ring-wrap svg { position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); }
+.rtrack { fill:none; stroke:rgba(201,114,126,0.1); stroke-width:1.5; }
+.rfill  { fill:none; stroke:url(#rg); stroke-width:1.5; stroke-linecap:round;
+          stroke-dasharray:415; stroke-dashoffset:415; animation:drawR 2.8s ease 1.5s forwards; }
+@keyframes drawR { to { stroke-dashoffset:0; } }
+.ring-inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-num { font-family:'Playfair Display',serif; font-size:46px; font-weight:700; color:var(--rose-lt); line-height:1; }
+.ring-lbl { font-size:9px; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold); margin-top:3px; }
+
+.hero-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(42px,10.5vw,84px);
+  font-weight:900; line-height:1.05; color:var(--cream);
+  opacity:0; animation:riseIn 1.2s ease 1s forwards;
+  text-shadow: 0 0 80px rgba(201,114,126,0.2);
+}
+.hero-title em {
+  display:block; font-style:italic; font-size:0.52em;
+  font-weight:400; color:var(--rose); letter-spacing:0.06em; margin-top:10px;
+}
+
+.scroll-hint {
+  margin-top:56px; display:flex; flex-direction:column; align-items:center; gap:7px;
+  opacity:0; animation:riseIn 1s ease 2.2s forwards;
+}
+.sh-txt { font-size:9px; letter-spacing:0.45em; text-transform:uppercase; color:var(--muted); }
+.sh-dots { display:flex; flex-direction:column; gap:4px; }
+.sh-dot { width:3px; height:3px; border-radius:50%; background:var(--rose); animation:shB 1.5s ease-in-out infinite; }
+.sh-dot:nth-child(2){ animation-delay:0.2s; opacity:0.55; }
+.sh-dot:nth-child(3){ animation-delay:0.4s; opacity:0.25; }
+@keyframes shB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
+
+/* ── SECTION ── */
+.sec {
+  opacity:0; transform:translateY(32px);
+  transition:opacity 0.95s ease, transform 0.95s ease;
+}
+.sec.on { opacity:1; transform:translateY(0); }
+
+/* ── LETTER CARD ── */
+.card {
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(201,114,126,0.1);
+  border-radius:14px;
+  padding:clamp(30px,6vw,60px) clamp(26px,6vw,64px);
+  backdrop-filter:blur(16px);
+  position:relative; overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.card::before {
+  content:''; position:absolute; inset:-1px;
+  background:linear-gradient(135deg,rgba(201,114,126,0.15) 0%,transparent 50%,rgba(196,154,85,0.1) 100%);
+  border-radius:14px; z-index:-1;
+}
+/* shimmer on hover */
+.card::after {
+  content:''; position:absolute;
+  top:-100%; left:-60%; width:40%; height:300%;
+  background:linear-gradient(to right,transparent,rgba(255,255,255,0.025),transparent);
+  transform:skewX(-20deg); transition:left 1.2s ease; pointer-events:none;
+}
+.card:hover::after { left:160%; }
+
+/* ── PARAGRAPH ── */
+.para {
+  margin-bottom:1.7em; opacity:0; transform:translateY(24px);
+  transition:opacity 0.9s ease, transform 0.9s ease;
+}
+.para.on { opacity:1; transform:translateY(0); }
+.para p { font-size:clamp(16px,2.4vw,19px); line-height:1.95; color:var(--text); font-weight:300; }
+
+/* Highlighted block */
+.hl {
+  padding:22px 26px; margin:2.4em 0;
+  border-left:2px solid var(--rose);
+  background:rgba(201,114,126,0.06);
+  border-radius:0 10px 10px 0;
+}
+.hl p {
+  font-family:'Playfair Display',serif;
+  font-style:italic;
+  font-size:clamp(17px,2.7vw,21px) !important;
+  color:var(--rose-lt) !important;
+  line-height:1.65 !important;
+}
+
+/* Italic gentle */
+.soft p {
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:clamp(18px,2.8vw,22px) !important;
+  color:rgba(220,200,190,0.72) !important;
+  line-height:1.88 !important;
+}
+
+/* ── QUOTE BURST CARD ── */
+.qcard {
+  position:relative; overflow:hidden;
+  background:linear-gradient(135deg,rgba(201,114,126,0.1),rgba(196,154,85,0.07));
+  border:1px solid rgba(196,154,85,0.22);
+  border-radius:12px; padding:36px 40px;
+  margin:48px 0; cursor:pointer;
+  transition:transform 0.4s ease, box-shadow 0.4s ease;
+}
+.qcard:hover { transform:translateY(-4px) scale(1.008); box-shadow:0 28px 70px rgba(201,114,126,0.14),0 0 0 1px rgba(201,114,126,0.25); }
+.qcard::before { content:'\275D'; position:absolute; top:14px; left:18px; font-size:52px; line-height:1; color:rgba(196,154,85,0.18); font-family:Georgia,serif; }
+.qcard p { font-family:'Playfair Display',serif; font-size:clamp(17px,2.8vw,22px); font-weight:700; color:var(--cream); line-height:1.55; text-align:center; position:relative; z-index:1; }
+.qcard .qs { font-family:'Jost',sans-serif; font-size:9px; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold); text-align:center; margin-top:14px; font-weight:400; }
+
+/* ripple */
+.rpl { position:absolute; border-radius:50%; background:rgba(201,114,126,0.22); transform:scale(0); animation:rplOut 0.75s ease-out forwards; pointer-events:none; }
+@keyframes rplOut { to { transform:scale(5); opacity:0; } }
+
+/* ── DIVIDER ── */
+.div {
+  display:flex; align-items:center; gap:0; margin:52px 0;
+  opacity:0; transform:scaleX(0.5);
+  transition:opacity 0.85s ease, transform 0.85s ease;
+}
+.div.on { opacity:1; transform:scaleX(1); }
+.dl { flex:1; height:1px; background:linear-gradient(to right,transparent,rgba(196,154,85,0.28)); }
+.dl.r { background:linear-gradient(to left,transparent,rgba(196,154,85,0.28)); }
+.dc { padding:0 18px; display:flex; align-items:center; gap:8px; }
+
+/* CSS flower ornament */
+.flw { width:10px; height:10px; position:relative; }
+.flw::before, .flw::after {
+  content:''; position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:var(--gold);
+  border-radius:50%;
+}
+.flw::before {
+  width:5px; height:5px;
+  box-shadow:
+    0 -9px 0 0 rgba(196,154,85,0.5),
+    0  9px 0 0 rgba(196,154,85,0.5),
+   -9px 0 0 0 rgba(196,154,85,0.5),
+    9px 0 0 0 rgba(196,154,85,0.5),
+   -6px -6px 0 0 rgba(196,154,85,0.3),
+    6px -6px 0 0 rgba(196,154,85,0.3),
+   -6px  6px 0 0 rgba(196,154,85,0.3),
+    6px  6px 0 0 rgba(196,154,85,0.3);
+}
+.flw::after { width:3px; height:3px; background:var(--gold-lt); z-index:1; }
+
+/* ── FLOATING HEARTS canvas ── */
+#hrtc { position:fixed; inset:0; z-index:2; pointer-events:none; }
+
+/* ── CLOSING ── */
+.closing {
+  text-align:center; padding:80px 0 20px;
+  opacity:0; transform:translateY(48px);
+  transition:opacity 1.3s ease, transform 1.3s ease;
+}
+.closing.on { opacity:1; transform:translateY(0); }
+.cey { font-size:9px; letter-spacing:0.55em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
+
+/* CSS looping rings */
+.sym { width:90px; height:45px; position:relative; margin:0 auto 30px; }
+.sym::before,.sym::after {
+  content:''; position:absolute;
+  width:40px; height:40px; border-radius:50%;
+  top:50%; transform:translateY(-50%);
+  animation:symPulse 3s ease-in-out infinite;
+}
+.sym::before { left:0; border:1.5px solid var(--rose); animation-delay:0s; }
+.sym::after  { right:0; border:1.5px solid var(--gold); animation-delay:0.5s; }
+@keyframes symPulse { 0%,100%{opacity:0.35;transform:translateY(-50%) scale(1)} 50%{opacity:1;transform:translateY(-50%) scale(1.1)} }
+
+.ctitle {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(30px,7vw,54px);
+  font-weight:900; color:var(--cream); line-height:1.15;
+}
+.ctitle em { display:block; font-style:italic; font-size:0.58em; font-weight:400; color:var(--rose); margin-top:8px; }
+
+/* ── SURPRISE BURST ── */
+#burst { position:fixed; inset:0; pointer-events:none; z-index:9990; }
+
+/* ── KEYFRAMES ── */
+@keyframes riseIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+@media(max-width:500px){
+  .card{padding:26px 18px;}
+  .qcard{padding:28px 22px;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="prog"></div>
+<canvas id="bgc"></canvas>
+<canvas id="trc"></canvas>
+<canvas id="hrtc"></canvas>
+<canvas id="burst"></canvas>
+<div class="grain"></div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="bl"></span>
+      <span class="bt">One Year Together</span>
+      <span class="bl r"></span>
+    </div>
+
+    <div class="ring-wrap">
+      <svg viewBox="0 0 148 148"><defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c9727e"/><stop offset="100%" stop-color="#c49a55"/></linearGradient></defs>
+        <circle class="rtrack" cx="74" cy="74" r="66"/>
+        <circle class="rfill"  cx="74" cy="74" r="66"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="ring-num" id="rnum">0</div>
+        <div class="ring-lbl">Year</div>
+      </div>
+    </div>
+
+    <h1 class="hero-title">
+      Happy Anniversary
+      <em>Love!!</em>
+    </h1>
+
+    <div class="scroll-hint">
+      <span class="sh-txt">Scroll to read</span>
+      <div class="sh-dots">
+        <div class="sh-dot"></div>
+        <div class="sh-dot"></div>
+        <div class="sh-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LETTER CARD -->
+  <div class="sec card" id="letterCard">
+
+    <div class="para">
+      <p>We made it to one year yesss.<br>I don't believe that we made it this far, And a lot of things happened. hehe. As the journey of us continue may you never feel unloved by me.</p>
+    </div>
+
+    <div class="para hl">
+      <p>You know that I love lovee lovee you so so much.</p>
+    </div>
+
+    <div class="para">
+      <p>Thank you for staying with me and giving me a chance to love you. I'm truly grateful to be part of your life and my life.</p>
+    </div>
+
+    <div class="div sec"><span class="dl"></span><span class="dc"><span class="flw"></span></span><span class="dl r"></span></div>
+
+    <div class="para">
+      <p>A great many experiences happened between us, a complex of emotions that included heated arguments, misunderstandings, and unexpected circumstances that life threw in our way.</p>
+    </div>
+
+    <div class="para">
+      <p>Each clash hehehe and moment of confusion that served to test the strength of our bond..</p>
+    </div>
+
+    <div class="para">
+      <p>Yet, through every struggle, I'm always came with the realization.</p>
+    </div>
+
+    <div class="para">
+      <p>Despite the challenges we faced, I would consistently choose you time and again.</p>
+    </div>
+
+    <div class="qcard sec" id="qcard">
+      <p>Because no other woman I want to be part of my life except you. It will always be you. My loved one, my baby, my lover.</p>
+      <div class="qs">It will always be you</div>
+    </div>
+
+    <div class="div sec"><span class="dl"></span><span class="dc"><span class="flw"></span></span><span class="dl r"></span></div>
+
+    <div class="para">
+      <p>Now that we've reached the one year mark, know that I'm devoted to you, and I'll do anything just to be with you. We're adults now; I don't want to play games. I'm all in.</p>
+    </div>
+
+    <div class="para">
+      <p>My words are far too limited and insufficient to fully express the depth of my love for you.</p>
+    </div>
+
+    <div class="para">
+      <p>Despite a lot of attempts to articulate these feelings, I often find myself grappling with the inadequacy of language, struggling to convey the true magnitude of my emotions for you. which transcends mere vocabulary. Hehehehe</p>
+    </div>
+
+    <div class="para">
+      <p>I want to take time to write down all of the things I wanted to say. But my vocabulary was too limited for it. Even the dictionary won't be able to find perfect words to describe it.</p>
+    </div>
+
+    <div class="para">
+      <p>And so, in light of the constraints that come with the brevity of language.</p>
+    </div>
+
+    <div class="para">
+      <p>I wish for my actions to convey the depth of my feelings i have for you..May the unwavering love I hold for you express what words fail to capture.</p>
+    </div>
+
+    <div class="div sec"><span class="dl"></span><span class="dc"><span class="flw"></span></span><span class="dl r"></span></div>
+
+    <div class="para soft">
+      <p>May the determination i have to carry on in this chaotic and unpredictable world serve as a testament to our bond and the love I have for you.</p>
+    </div>
+
+    <div class="para soft">
+      <p>May you know that you are not just my lover. You are embody of my very will to persist and thrive amidst of this life's currents.</p>
+    </div>
+
+    <div class="para soft">
+      <p>That I will bravely choose to fight against all odds rather than the thought of losing you in this fleeting life that we share.</p>
+    </div>
+
+    <div class="div sec"><span class="dl"></span><span class="dc"><span class="flw"></span></span><span class="dl r"></span></div>
+
+    <div class="para">
+      <p>I am committed to remain here, in this world, not only to experience your presence but also to envelop you with my love, every day that we are given together.</p>
+    </div>
+
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closing sec" id="closing">
+    <div class="cey">With all my heart, always</div>
+    <div class="sym"></div>
+    <h2 class="ctitle">
+      HAPPY ANNIVERSARY LOVE.<br>I LOVE YOU SO MUCHH!!!
+      <em>Always and forever.</em>
+    </h2>
+  </div>
+
+</div>
+
+<script>
+/* ── NO CONTEXT MENU ── */
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+/* ── CURSOR ── */
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+const isMobile = 'ontouchstart' in window;
+if(isMobile){ cur.style.display='none'; ring.style.display='none'; document.body.style.cursor='default'; }
+document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function lerp(){ rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(lerp); })();
+document.querySelectorAll('.qcard').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ ring.style.width='54px'; ring.style.height='54px'; ring.style.borderColor='rgba(196,154,85,0.6)'; });
+  el.addEventListener('mouseleave',()=>{ ring.style.width='36px'; ring.style.height='36px'; ring.style.borderColor='rgba(201,114,126,0.45)'; });
+});
+
+/* ── PROGRESS ── */
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY, t=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(s/t*100)+'%';
+  parallax();
+});
+
+/* ── PARALLAX HERO ── */
+function parallax(){
+  const y=window.scrollY;
+  const ht=document.querySelector('.hero-title');
+  if(ht){ ht.style.transform=`translateY(${y*0.22}px)`; }
+  const hero=document.querySelector('.hero');
+  if(hero){ hero.style.opacity=Math.max(0,1-y/(window.innerHeight*0.85)); }
+}
+
+/* ── SCROLL REVEAL ── */
+const revEls = document.querySelectorAll('.sec, .para, .div');
+const revObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('on'),50); } });
+},{ threshold:0.1 });
+revEls.forEach(el=>revObs.observe(el));
+
+/* ── YEAR COUNTER ── */
+const rnum=document.getElementById('rnum');
+let counted=false;
+setTimeout(()=>{
+  if(counted) return; counted=true;
+  let s=performance.now();
+  (function step(now){
+    const p=Math.min((now-s)/2200,1);
+    rnum.textContent=Math.round(p);
+    if(p<1) requestAnimationFrame(step);
+  })(s);
+},1600);
+
+/* ─────────────────────────────────────────
+   BACKGROUND CANVAS — orbs + stars
+───────────────────────────────────────── */
+const bgc=document.getElementById('bgc');
+const bx=bgc.getContext('2d');
+function rbg(){ bgc.width=window.innerWidth; bgc.height=window.innerHeight; }
+rbg(); window.addEventListener('resize',rbg);
+
+const stars=Array.from({length:140},()=>({
+  x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight,
+  r:Math.random()*1.3+0.2, ph:Math.random()*Math.PI*2, sp:Math.random()*0.007+0.003
+}));
+const orbs=[
+  {x:0.15,y:0.2,r:320,c:'160,60,75',sp:0.00035,ph:0},
+  {x:0.85,y:0.65,r:260,c:'110,70,20',sp:0.00028,ph:1.2},
+  {x:0.45,y:0.88,r:200,c:'150,55,70',sp:0.00045,ph:2.4},
+  {x:0.7,y:0.15,r:180,c:'100,60,20',sp:0.0003,ph:3.6},
+];
+let bt=0;
+(function bgloop(){
+  bt+=0.6; bx.clearRect(0,0,bgc.width,bgc.height);
+  const g=bx.createRadialGradient(bgc.width*.5,bgc.height*.35,0,bgc.width*.5,bgc.height*.35,bgc.height*.9);
+  g.addColorStop(0,'rgba(32,12,18,1)'); g.addColorStop(1,'rgba(13,6,9,1)');
+  bx.fillStyle=g; bx.fillRect(0,0,bgc.width,bgc.height);
+  orbs.forEach(o=>{
+    const ox=(o.x+Math.sin(bt*o.sp+o.ph)*0.065)*bgc.width;
+    const oy=(o.y+Math.cos(bt*o.sp+o.ph)*0.045)*bgc.height;
+    const og=bx.createRadialGradient(ox,oy,0,ox,oy,o.r);
+    og.addColorStop(0,`rgba(${o.c},0.14)`); og.addColorStop(1,`rgba(${o.c},0)`);
+    bx.fillStyle=og; bx.beginPath(); bx.arc(ox,oy,o.r,0,Math.PI*2); bx.fill();
+  });
+  stars.forEach(s=>{
+    const a=0.08+0.65*(0.5+0.5*Math.sin(bt*s.sp+s.ph));
+    bx.beginPath(); bx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    bx.fillStyle=`rgba(242,224,213,${a})`; bx.fill();
+  });
+  requestAnimationFrame(bgloop);
+})();
+
+/* ─────────────────────────────────────────
+   CURSOR TRAIL CANVAS
+───────────────────────────────────────── */
+const trc=document.getElementById('trc');
+const tx=trc.getContext('2d');
+function rtr(){ trc.width=window.innerWidth; trc.height=window.innerHeight; }
+rtr(); window.addEventListener('resize',rtr);
+let trail=[];
+document.addEventListener('mousemove',e=>{ trail.push({x:e.clientX,y:e.clientY}); if(trail.length>65) trail.shift(); });
+(function tloop(){
+  tx.clearRect(0,0,trc.width,trc.height);
+  for(let i=1;i<trail.length;i++){
+    const p=i/trail.length;
+    tx.beginPath(); tx.moveTo(trail[i-1].x,trail[i-1].y); tx.lineTo(trail[i].x,trail[i].y);
+    tx.strokeStyle=`rgba(201,114,126,${p*0.16})`; tx.lineWidth=p*2.8; tx.lineCap='round'; tx.stroke();
+  }
+  requestAnimationFrame(tloop);
+})();
+
+/* ─────────────────────────────────────────
+   FLOATING HEARTS CANVAS
+───────────────────────────────────────── */
+const hrtc=document.getElementById('hrtc');
+const hx=hrtc.getContext('2d');
+function rhrt(){ hrtc.width=window.innerWidth; hrtc.height=window.innerHeight; }
+rhrt(); window.addEventListener('resize',rhrt);
+
+function heartPath(ctx,x,y,size){
+  ctx.save(); ctx.translate(x,y); ctx.scale(size,size);
+  ctx.beginPath();
+  ctx.moveTo(0,-0.5);
+  ctx.bezierCurveTo(0.5,-1,1.2,-0.2,1,0.4);
+  ctx.bezierCurveTo(0.8,1,0,1.5,0,1.5);
+  ctx.bezierCurveTo(0,1.5,-0.8,1,-1,0.4);
+  ctx.bezierCurveTo(-1.2,-0.2,-0.5,-1,0,-0.5);
+  ctx.restore();
+}
+
+const hearts=[];
+function spawnHeart(px,py){
+  hearts.push({
+    x:px||Math.random()*hrtc.width,
+    y:py||hrtc.height+20,
+    vy:-(1.2+Math.random()*1.8),
+    vx:(Math.random()-0.5)*0.7,
+    size:4+Math.random()*10,
+    alpha:0.7+Math.random()*0.3,
+    fade:0.004+Math.random()*0.004,
+    rot:Math.random()*Math.PI*2,
+    spin:(Math.random()-0.5)*0.03,
+    color: Math.random()>0.5?'201,114,126':'196,154,85'
+  });
+}
+
+// Spawn a few ambient hearts continuously
+setInterval(()=>{ if(hearts.length<25) spawnHeart(); },800);
+
+(function hloop(){
+  hx.clearRect(0,0,hrtc.width,hrtc.height);
+  for(let i=hearts.length-1;i>=0;i--){
+    const h=hearts[i];
+    h.x+=h.vx; h.y+=h.vy; h.alpha-=h.fade; h.rot+=h.spin;
+    if(h.alpha<=0){ hearts.splice(i,1); continue; }
+    hx.save();
+    hx.translate(h.x,h.y);
+    hx.rotate(h.rot);
+    heartPath(hx,0,0,h.size);
+    hx.fillStyle=`rgba(${h.color},${h.alpha*0.55})`;
+    hx.fill();
+    hx.restore();
+  }
+  requestAnimationFrame(hloop);
+})();
+
+/* ─────────────────────────────────────────
+   QUOTE CARD — ripple + heart burst
+───────────────────────────────────────── */
+document.getElementById('qcard').addEventListener('click',function(e){
+  // ripple
+  const rect=this.getBoundingClientRect();
+  const rpl=document.createElement('span');
+  rpl.className='rpl';
+  const sz=Math.max(rect.width,rect.height);
+  rpl.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rect.left-sz/2}px;top:${e.clientY-rect.top-sz/2}px;`;
+  this.appendChild(rpl);
+  setTimeout(()=>rpl.remove(),800);
+  // burst hearts from click point
+  for(let i=0;i<18;i++){
+    setTimeout(()=>spawnHeart(e.clientX+(Math.random()-0.5)*60, e.clientY+(Math.random()-0.5)*40),i*30);
+  }
+});
+
+/* ─────────────────────────────────────────
+   SURPRISE BURST CANVAS — confetti on closing visible
+───────────────────────────────────────── */
+const burstC=document.getElementById('burst');
+const bc=burstC.getContext('2d');
+function rbs(){ burstC.width=window.innerWidth; burstC.height=window.innerHeight; }
+rbs(); window.addEventListener('resize',rbs);
+
+let particles=[];
+let burstFired=false;
+
+function fireBurst(){
+  const colors=['201,114,126','196,154,85','232,173,182','242,192,122','245,224,213'];
+  for(let i=0;i<120;i++){
+    const ang=Math.random()*Math.PI*2;
+    const spd=3+Math.random()*8;
+    particles.push({
+      x:burstC.width/2, y:burstC.height*0.4,
+      vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd-4,
+      r:2+Math.random()*4,
+      alpha:1, fade:0.012+Math.random()*0.01,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      shape:Math.random()>0.4?'circle':'rect',
+      w:4+Math.random()*8, h:3+Math.random()*5,
+      rot:Math.random()*Math.PI*2, spin:(Math.random()-0.5)*0.15,
+      gravity:0.18
+    });
+  }
+  // also spawn many hearts
+  for(let i=0;i<30;i++){
+    setTimeout(()=>spawnHeart(
+      burstC.width*0.3+Math.random()*burstC.width*0.4,
+      burstC.height*0.5+Math.random()*100
+    ),i*60);
+  }
+}
+
+(function bloop(){
+  bc.clearRect(0,0,burstC.width,burstC.height);
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.gravity; p.alpha-=p.fade; p.rot+=p.spin;
+    if(p.alpha<=0){ particles.splice(i,1); continue; }
+    bc.save(); bc.globalAlpha=p.alpha; bc.translate(p.x,p.y); bc.rotate(p.rot);
+    bc.fillStyle=`rgba(${p.color},1)`;
+    if(p.shape==='circle'){ bc.beginPath(); bc.arc(0,0,p.r,0,Math.PI*2); bc.fill(); }
+    else { bc.fillRect(-p.w/2,-p.h/2,p.w,p.h); }
+    bc.restore();
+  }
+  requestAnimationFrame(bloop);
+})();
+
+// Watch closing section
+const closingEl=document.getElementById('closing');
+const closeObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting && !burstFired){ burstFired=true; fireBurst(); }
+  });
+},{ threshold:0.3 });
+closeObs.observe(closingEl);
+
+/* ─────────────────────────────────────────
+   CLICK ANYWHERE — small heart burst
+───────────────────────────────────────── */
+document.addEventListener('click',e=>{
+  if(e.target.closest('.qcard')) return;
+  for(let i=0;i<6;i++){
+    setTimeout(()=>spawnHeart(e.clientX+(Math.random()-0.5)*30, e.clientY+(Math.random()-0.5)*30),i*40);
+  }
+});
+
+/* ─────────────────────────────────────────
+   LETTER CARD MOUSE GLOW
+───────────────────────────────────────── */
+const lc=document.getElementById('letterCard');
+lc.addEventListener('mousemove',e=>{
+  const r=lc.getBoundingClientRect();
+  const px=e.clientX-r.left, py=e.clientY-r.top;
+  lc.style.background=`radial-gradient(600px at ${px}px ${py}px, rgba(201,114,126,0.06), rgba(255,255,255,0.02) 60%, rgba(255,255,255,0.01))`;
+});
+lc.addEventListener('mouseleave',()=>{ lc.style.background='rgba(255,255,255,0.03)'; });
+</script>
+</body>
+</html>
